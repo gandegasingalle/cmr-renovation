@@ -11,6 +11,25 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 
+<header class="site-header" id="top">
+  <div class="container nav-wrap">
+    <a class="brand" href="#hero" aria-label="Retour à l'accueil">
+      <img class="header-logo" src="images/logo.png" alt="CMR - Centre Maintenance Rénovation">
+    </a>
+
+    <button class="burger" id="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false"
+      aria-controls="menu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="nav-links" id="menu">
+      <a href="#services">Prestations</a>
+      <a href="#energy">Énergie</a>
+      <a class="nav-cta" href="#contact">Nous-contacter</a>
+    </nav>
+  </div>
+</header>
+
 <body>
 
   <!-- ============ SECTION HERO ============ -->
@@ -82,7 +101,7 @@
       <div class="footer-content">
         <!-- Logo à gauche -->
         <div class="">
-      <img class = "logo" src="images/logo.png" alt="Logo du site">
+          <img class="logo" src="images/logo.png" alt="Logo du site">
           <p id="hero-baseline">Un regard d'exception sur votre habitation</p>
         </div>
 
@@ -244,63 +263,97 @@
           <p><strong>Localisation :</strong>Île-de-France</p>
         </div>
 
-        <form class="contact-form" id="contactForm">
+        <form class="contact-form" id="contactForm" action="https://formspree.io/f/maqjynaw" method="POST">
+
           <div class="form-group">
-            <input type="text" placeholder="Votre nom" required>
+            <input type="text" name="name" placeholder="Votre nom" required>
           </div>
+
           <div class="form-group">
-            <input type="email" placeholder="Votre email" required>
+            <input type="email" name="email" placeholder="Votre email" required>
           </div>
+
           <div class="form-group">
-            <input type="tel" placeholder="Votre téléphone" required>
+            <input type="tel" name="phone" placeholder="Votre téléphone" required>
           </div>
+
           <div class="form-group">
-            <textarea placeholder="Décrivez votre projet..." rows="5" required></textarea>
+            <textarea name="message" placeholder="Décrivez votre projet..." rows="5" required></textarea>
           </div>
+
+          <!-- Anti-spam Formspree -->
+          <input type="text" name="_gotcha" style="display:none">
+
           <button type="submit" class="cta-button">Envoyer ma demande</button>
+
+          <p class="form-info">Les informations envoyées servent uniquement à vous recontacter.</p>
         </form>
+
       </div>
     </div>
   </section>
 
   <!-- ============ FOOTER ============ -->
-  <footer class="footer">
+  <footer class="mini-footer">
     <div class="container">
-      <div class="footer-grid">
-        <div class="footer-left">
-         <img class = "logo logo-footer" src="images/logo.png" alt="logo du site">
-         
-        </div>
-        <div class="footer-right">
-          <p>&copy; 2025 CMR - Centre Maintenance Rénovation. Tous droits réservés.</p>
-        </div>
-      </div>
+      <p>© <span id="year"></span> CMR – Centre Maintenance Rénovation. Tous droits réservés.</p>
     </div>
   </footer>
 
   <script>
 
 
-    document.addEventListener('DOMContentLoaded', function () {
-      const form = document.getElementById('contactForm');
+    document.getElementById('year').textContent = new Date().getFullYear();
 
-      if (form) {
-        form.addEventListener('submit', function (e) {
-          e.preventDefault();
 
-          // Récupérer les valeurs
-          const name = form.querySelector('input[type="text"]').value;
-          const email = form.querySelector('input[type="email"]').value;
-          const phone = form.querySelector('input[type="tel"]').value;
-          const message = form.querySelector('textarea').value;
 
-          // Afficher confirmation (tu peux intégrer un service d'envoi réel)
-          alert(`Merci ${name} !\n\nVotre demande a été enregistrée.\nNous vous recontacterons très bientôt au ${phone} ou ${email}`);
+    // Menu burger
+    const burger = document.getElementById('burger');
+    const menu = document.getElementById('menu');
 
-          // Réinitialiser le formulaire
-          form.reset();
-        });
-      }
+    if (burger && menu) {
+      const closeMenu = () => {
+        menu.classList.remove('is-open');
+        burger.classList.remove('is-open');
+        burger.setAttribute('aria-expanded', 'false');
+      };
+
+      burger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = menu.classList.toggle('is-open');
+        burger.classList.toggle('is-open', isOpen);
+        burger.setAttribute('aria-expanded', String(isOpen));
+      });
+
+      // Ferme quand on clique un lien
+      menu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+
+      // Ferme si clic en dehors
+      document.addEventListener('click', (e) => {
+        if (!menu.contains(e.target) && !burger.contains(e.target)) closeMenu();
+      });
+    }
+
+
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  fetch(this.action, {
+    method: 'POST',
+    body: new FormData(this),
+    headers: { 'Accept': 'application/json' }
+  })
+  .then(r => {
+    if (r.ok) {
+      alert('Merci ! Votre demande a bien été envoyée.');
+      this.reset();
+    } else {
+      alert('Erreur lors de l’envoi.');
+    }
+  })
+  .catch(() => alert('Erreur réseau.'));
+});
+
 
       // Smooth scroll des liens internes
       document.querySelectorAll('a[href^="#"]').forEach(anchor => {
